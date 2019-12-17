@@ -47,7 +47,7 @@ namespace Harmonic.Service.KeyframeService
             ReadOnlySpan<byte> avcDecoderConfig,
         AVHWDeviceType hwDeviceType = AVHWDeviceType.AV_HWDEVICE_TYPE_OPENCL)
         {
-            ffmpeg.RootPath = @"D:\Harmonic\Harmonic\bin\Debug\netcoreapp3.0\";
+            ffmpeg.RootPath = @"D:\Program\Media\ffmpeg\bin\";
             Console.WriteLine($"FFmpeg version info: {ffmpeg.av_version_info()}");
 
             if (setMetaData == null)

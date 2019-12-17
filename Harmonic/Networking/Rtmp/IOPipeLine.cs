@@ -203,6 +203,17 @@ namespace Harmonic.Networking.Rtmp
                 var buffer = result.Buffer;
                 int consumed = 0;
 
+                var aaa = Encoding.ASCII.GetString(buffer.ToArray());
+                var bbb = Encoding.Default.GetString(buffer.ToArray());
+
+                var bytesStr = new string(buffer.ToArray().Select(x => Convert.ToChar(x)).ToArray()).Replace("\0", "");
+                var find = bytesStr.Contains("touhou");
+                var find2 = bytesStr.Contains("living");
+
+                var cont = @"C#
+releaseStream@touhouC	FCPublish@touhouCcreateStream@";
+                var same = bytesStr == cont;
+
                 while (true)
                 {
                     if (!_bufferProcessors[NextProcessState](buffer, ref consumed))
@@ -211,7 +222,6 @@ namespace Harmonic.Networking.Rtmp
                     }
                 }
                 buffer = buffer.Slice(consumed);
-
                 reader.AdvanceTo(buffer.Start, buffer.End);
                 if (ChunkStreamContext != null)
                 {

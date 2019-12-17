@@ -8,7 +8,7 @@ namespace Harmonic.Networking.Rtmp.Data
     public class SharedObjectMessage
     {
         public string SharedObjectName { get; set; }
-        public UInt16 CurrentVersion { get; set; }
+        public ushort CurrentVersion { get; set; }
         // TBD
     }
 }

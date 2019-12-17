@@ -1,11 +1,10 @@
-using System;
-using Autofac;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Harmonic.Hosting
 {
     public interface IStartup
     {
-        void ConfigureServices(ContainerBuilder builder);
+        void ConfigureServices(IServiceCollection services);
 
     }
 }

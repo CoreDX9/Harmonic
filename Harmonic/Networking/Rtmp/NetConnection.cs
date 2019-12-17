@@ -1,17 +1,10 @@
-﻿using Autofac;
-using Harmonic.Controllers;
+﻿using Harmonic.Controllers;
 using Harmonic.Networking.Amf.Common;
-using Harmonic.Networking.Rtmp.Data;
-using Harmonic.Networking.Rtmp.Messages;
 using Harmonic.Networking.Rtmp.Messages.Commands;
-using Harmonic.Networking.Rtmp.Serialization;
-using Harmonic.Rpc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Harmonic.Networking.Rtmp
 {
@@ -98,7 +91,7 @@ namespace Harmonic.Networking.Rtmp
             }
             if (_rtmpSession.FindController(_rtmpSession.ConnectionInformation.App, out var controllerType))
             {
-                Controller = _rtmpSession.IOPipeline.Options.ServerLifetime.Resolve(controllerType) as RtmpController;
+                Controller = _rtmpSession.IOPipeline.Options.ServerLifetime.GetService(controllerType) as RtmpController;
             }
             else
             {

@@ -1,19 +1,8 @@
-﻿using Autofac;
-using Fleck;
-using Harmonic.Buffers;
+﻿using Fleck;
 using Harmonic.Controllers;
 using Harmonic.Hosting;
-using Harmonic.Networking.Amf.Serialization.Amf0;
-using Harmonic.Networking.Amf.Serialization.Amf3;
-using Harmonic.Networking.Rtmp.Messages;
-using Harmonic.Networking.Rtmp.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using Harmonic.Networking.Utils;
 using Harmonic.Networking.Rtmp.Data;
-using System.Linq;
 using Harmonic.Networking.Flv;
 using System.Threading.Tasks;
 using System.Web;
@@ -68,7 +57,7 @@ namespace Harmonic.Networking.WebSocket
                 {
                     _webSocketConnection.Close();
                 }
-                _controller = _options._serverOptions.ServerLifetime.Resolve(controllerType) as WebSocketController;
+                _controller = _options._serverOptions.ServerLifetime.GetService(controllerType) as WebSocketController;
                 _controller.Query = HttpUtility.ParseQueryString(query);
                 _controller.StreamName = streamName;
                 _controller.Session = this;

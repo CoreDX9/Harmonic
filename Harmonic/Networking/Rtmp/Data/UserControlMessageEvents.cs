@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Harmonic.Networking.Rtmp.Data
 {
-    public enum UserControlMessageEvents : UInt16
+    public enum UserControlMessageEvents : ushort
     {
         StreamBegin,
         StreamEOF,

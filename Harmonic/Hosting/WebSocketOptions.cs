@@ -1,9 +1,8 @@
-﻿using Autofac;
-using Harmonic.Controllers;
+﻿using Harmonic.Controllers;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Harmonic.Hosting
@@ -29,7 +28,7 @@ namespace Harmonic.Hosting
                 throw new ArgumentException("controller not inherit from WebSocketController");
             }
             _controllers.Add(controllerType.Name.Replace("Controller", "").ToLower(), controllerType);
-            _serverOptions._builder.RegisterType(controllerType).AsSelf();
+            _serverOptions._builder.AddTransient(controllerType);
         }
 
     }

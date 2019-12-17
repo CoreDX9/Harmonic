@@ -569,7 +569,7 @@ namespace Harmonic.Networking.Rtmp
 
 
                             }
-                            catch (NotSupportedException)
+                            catch (NotSupportedException e)
                             {
 
                             }

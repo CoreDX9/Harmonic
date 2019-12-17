@@ -1,11 +1,8 @@
 ﻿using Harmonic.Controllers;
 using Harmonic.Controllers.Living;
 using Harmonic.Rpc;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace demo
+namespace WebRtmp
 {
     [NeverRegister]
     class MyLivingController : LivingController

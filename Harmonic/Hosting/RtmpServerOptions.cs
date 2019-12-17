@@ -1,6 +1,4 @@
-﻿using Autofac;
-using Harmonic.Controllers;
-using Harmonic.Controllers.Living;
+﻿using Harmonic.Controllers;
 using Harmonic.Networking.Rtmp;
 using Harmonic.Networking.Rtmp.Data;
 using Harmonic.Networking.Rtmp.Messages;
@@ -13,8 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Harmonic.Hosting
 {
@@ -22,9 +20,9 @@ namespace Harmonic.Hosting
     {
         internal Dictionary<MessageType, MessageFactory> _messageFactories = new Dictionary<MessageType, MessageFactory>();
         public IReadOnlyDictionary<MessageType, MessageFactory> MessageFactories => _messageFactories;
-        public delegate Message MessageFactory(MessageHeader header, Networking.Rtmp.Serialization.SerializationContext context, out int consumed);
+        public delegate Message MessageFactory(MessageHeader header, SerializationContext context, out int consumed);
         private Dictionary<string, Type> _registeredControllers = new Dictionary<string, Type>();
-        internal ContainerBuilder _builder = null;
+        internal IServiceCollection _builder = null;
         private RpcService _rpcService = null;
         internal IStartup _startup = null;
         internal IStartup Startup
@@ -36,13 +34,13 @@ namespace Harmonic.Hosting
             set
             {
                 _startup = value;
-                _builder = new ContainerBuilder();
+                _builder = new ServiceCollection();
                 _startup.ConfigureServices(_builder);
                 RegisterCommonServices(_builder);
             }
         }
-        internal IContainer ServiceContainer { get; private set; }
-        internal ILifetimeScope ServerLifetime { get; private set; }
+        internal IServiceProvider ServiceContainer { get; private set; }
+        internal IServiceProvider ServerLifetime { get; private set; }
 
         internal IReadOnlyDictionary<string, Type> RegisteredControllers => _registeredControllers;
         internal IPEndPoint RtmpEndPoint { get; set; } = new IPEndPoint(IPAddress.Any, 1935);
@@ -73,8 +71,8 @@ namespace Harmonic.Hosting
 
         internal void BuildContainer()
         {
-            ServiceContainer = _builder.Build();
-            ServerLifetime = ServiceContainer.BeginLifetimeScope();
+            ServiceContainer = _builder.BuildServiceProvider();
+            ServerLifetime = ServiceContainer.CreateScope().ServiceProvider;
         }
 
         public void RegisterMessage<T>(MessageFactory factory) where T : Message
@@ -120,7 +118,7 @@ namespace Harmonic.Hosting
             var name = appName ?? controllerType.Name.Replace("Controller", "");
             _registeredControllers.Add(name.ToLower(), controllerType);
             _rpcService.RegeisterController(controllerType);
-            _builder.RegisterType(controllerType).AsSelf();
+            _builder.AddTransient(controllerType);
         }
         internal void RegisterStream(Type streamType)
         {
@@ -129,26 +127,19 @@ namespace Harmonic.Hosting
                 throw new InvalidOperationException("streamType must inherit from NetStream");
             }
             _rpcService.RegeisterController(streamType);
-            _builder.RegisterType(streamType).AsSelf();
+            _builder.AddTransient(streamType);
         }
 
         internal void CleanupRpcRegistration()
         {
             _rpcService.CleanupRegistration();
         }
-        private void RegisterCommonServices(ContainerBuilder builder)
+        private void RegisterCommonServices(IServiceCollection builder)
         {
-            builder.Register(c => new RecordServiceConfiguration())
-                .AsSelf();
-            builder.Register(c => new RecordService(c.Resolve<RecordServiceConfiguration>()))
-                .AsSelf()
-                .InstancePerLifetimeScope();
-            builder.Register(c => new PublisherSessionService())
-                .AsSelf()
-                .InstancePerLifetimeScope();
-            builder.Register(c => _rpcService)
-                .AsSelf()
-                .SingleInstance();
+            builder.AddTransient<RecordServiceConfiguration>();
+            builder.AddScoped<RecordService>();
+            builder.AddScoped<PublisherSessionService>();
+            builder.AddSingleton(_rpcService);
         }
 
         internal void RegisterController<T>(string appName = null) where T : RtmpController

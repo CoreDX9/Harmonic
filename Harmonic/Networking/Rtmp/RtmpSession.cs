@@ -1,19 +1,16 @@
-﻿using Autofac;
-using Harmonic.Controllers;
+﻿using Harmonic.Controllers;
 using Harmonic.Networking.Rtmp.Data;
 using Harmonic.Networking.Rtmp.Messages;
 using Harmonic.Networking.Rtmp.Messages.Commands;
-using Harmonic.Networking;
 using Harmonic.Rpc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Harmonic.Networking.Rtmp
 {
@@ -41,7 +38,7 @@ namespace Harmonic.Networking.Rtmp
             ControlMessageStream.RegisterMessageHandler<WindowAcknowledgementSizeMessage>(HandleWindowAcknowledgementSize);
             ControlMessageStream.RegisterMessageHandler<SetPeerBandwidthMessage>(HandleSetPeerBandwidth);
             ControlMessageStream.RegisterMessageHandler<AcknowledgementMessage>(HandleAcknowledgement);
-            _rpcService = ioPipeline.Options.ServerLifetime.Resolve<RpcService>();
+            _rpcService = ioPipeline.Options.ServerLifetime.GetService<RpcService>();
         }
 
         private void HandleAcknowledgement(AcknowledgementMessage ack)
@@ -86,7 +83,7 @@ namespace Harmonic.Networking.Rtmp
 
         public T CreateNetStream<T>() where T: NetStream
         {
-            var ret = IOPipeline.Options.ServerLifetime.Resolve<T>();
+            var ret = IOPipeline.Options.ServerLifetime.GetService<T>();
             ret.MessageStream = CreateMessageStream();
             ret.RtmpSession = this;
             ret.ChunkStream = CreateChunkStream();
