@@ -28,7 +28,7 @@ namespace Harmonic.Hosting
                 throw new ArgumentException("controller not inherit from WebSocketController");
             }
             _controllers.Add(controllerType.Name.Replace("Controller", "").ToLower(), controllerType);
-            _serverOptions._builder.AddTransient(controllerType);
+            _serverOptions._services.AddTransient(controllerType);
         }
 
     }

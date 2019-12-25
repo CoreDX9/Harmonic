@@ -126,7 +126,7 @@ namespace Harmonic.Controllers.Living
                     a();
                 }
                 RtmpSession.Close();
-                throw;
+                //throw;
             }
         }
 
@@ -144,7 +144,7 @@ namespace Harmonic.Controllers.Living
                     a();
                 }
                 RtmpSession.Close();
-                throw;
+                //throw;
             }
         }
 

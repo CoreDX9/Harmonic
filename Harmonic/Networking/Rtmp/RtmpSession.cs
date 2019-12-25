@@ -38,7 +38,7 @@ namespace Harmonic.Networking.Rtmp
             ControlMessageStream.RegisterMessageHandler<WindowAcknowledgementSizeMessage>(HandleWindowAcknowledgementSize);
             ControlMessageStream.RegisterMessageHandler<SetPeerBandwidthMessage>(HandleSetPeerBandwidth);
             ControlMessageStream.RegisterMessageHandler<AcknowledgementMessage>(HandleAcknowledgement);
-            _rpcService = ioPipeline.Options.ServerLifetime.GetService<RpcService>();
+            _rpcService = ioPipeline.Options.ScopedServiceProvider.GetService<RpcService>();
         }
 
         private void HandleAcknowledgement(AcknowledgementMessage ack)
@@ -83,7 +83,7 @@ namespace Harmonic.Networking.Rtmp
 
         public T CreateNetStream<T>() where T: NetStream
         {
-            var ret = IOPipeline.Options.ServerLifetime.GetService<T>();
+            var ret = IOPipeline.Options.ScopedServiceProvider.GetService<T>();
             ret.MessageStream = CreateMessageStream();
             ret.RtmpSession = this;
             ret.ChunkStream = CreateChunkStream();

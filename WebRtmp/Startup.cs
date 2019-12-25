@@ -13,6 +13,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace WebRtmp
 {
+    public class RtmpServerOptionsHolder
+    {
+        public RtmpServerOptions options { get; set; }
+    }
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -25,11 +29,17 @@ namespace WebRtmp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            RtmpServerOptionsHolder holder = new RtmpServerOptionsHolder();
+            services.AddSingleton(holder);
             services.AddControllersWithViews();
             services.AddSingleton(provider =>
             {
                 return new RtmpServerBuilder()
                 .UseStartup<RtmpStartup>()
+                .UseHarmonic(config =>
+                {
+                    holder.options = config;
+                })
                 .UseWebSocket(c =>
                 {
                     c.BindEndPoint = new IPEndPoint(IPAddress.Parse("0.0.0.0"), 8080);

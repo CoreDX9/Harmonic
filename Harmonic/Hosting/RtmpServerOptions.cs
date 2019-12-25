@@ -22,7 +22,7 @@ namespace Harmonic.Hosting
         public IReadOnlyDictionary<MessageType, MessageFactory> MessageFactories => _messageFactories;
         public delegate Message MessageFactory(MessageHeader header, SerializationContext context, out int consumed);
         private Dictionary<string, Type> _registeredControllers = new Dictionary<string, Type>();
-        internal IServiceCollection _builder = null;
+        internal IServiceCollection _services = null;
         private RpcService _rpcService = null;
         internal IStartup _startup = null;
         internal IStartup Startup
@@ -34,13 +34,13 @@ namespace Harmonic.Hosting
             set
             {
                 _startup = value;
-                _builder = new ServiceCollection();
-                _startup.ConfigureServices(_builder);
-                RegisterCommonServices(_builder);
+                _services = new ServiceCollection();
+                _startup.ConfigureServices(_services);
+                RegisterCommonServices(_services);
             }
         }
-        internal IServiceProvider ServiceContainer { get; private set; }
-        internal IServiceProvider ServerLifetime { get; private set; }
+        internal IServiceProvider ApplicationServiceProvider { get; private set; }
+        internal IServiceProvider ScopedServiceProvider { get; private set; }
 
         internal IReadOnlyDictionary<string, Type> RegisteredControllers => _registeredControllers;
         internal IPEndPoint RtmpEndPoint { get; set; } = new IPEndPoint(IPAddress.Any, 1935);
@@ -71,8 +71,8 @@ namespace Harmonic.Hosting
 
         internal void BuildContainer()
         {
-            ServiceContainer = _builder.BuildServiceProvider();
-            ServerLifetime = ServiceContainer.CreateScope().ServiceProvider;
+            ApplicationServiceProvider = _services.BuildServiceProvider();
+            ScopedServiceProvider = ApplicationServiceProvider.CreateScope().ServiceProvider;
         }
 
         public void RegisterMessage<T>(MessageFactory factory) where T : Message
@@ -118,7 +118,7 @@ namespace Harmonic.Hosting
             var name = appName ?? controllerType.Name.Replace("Controller", "");
             _registeredControllers.Add(name.ToLower(), controllerType);
             _rpcService.RegeisterController(controllerType);
-            _builder.AddTransient(controllerType);
+            _services.AddTransient(controllerType);
         }
         internal void RegisterStream(Type streamType)
         {
@@ -127,19 +127,19 @@ namespace Harmonic.Hosting
                 throw new InvalidOperationException("streamType must inherit from NetStream");
             }
             _rpcService.RegeisterController(streamType);
-            _builder.AddTransient(streamType);
+            _services.AddTransient(streamType);
         }
 
         internal void CleanupRpcRegistration()
         {
             _rpcService.CleanupRegistration();
         }
-        private void RegisterCommonServices(IServiceCollection builder)
+        private void RegisterCommonServices(IServiceCollection services)
         {
-            builder.AddTransient<RecordServiceConfiguration>();
-            builder.AddScoped<RecordService>();
-            builder.AddScoped<PublisherSessionService>();
-            builder.AddSingleton(_rpcService);
+            services.AddTransient<RecordServiceConfiguration>();
+            services.AddScoped<RecordService>();
+            services.AddScoped<PublisherSessionService>();
+            services.AddSingleton(_rpcService);
         }
 
         internal void RegisterController<T>(string appName = null) where T : RtmpController

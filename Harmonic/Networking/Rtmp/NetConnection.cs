@@ -72,7 +72,7 @@ namespace Harmonic.Networking.Rtmp
         public void Connect(CommandMessage command)
         {
             var commandObj = command.CommandObject;
-            _rtmpSession.ConnectionInformation = new Networking.ConnectionInformation();
+            _rtmpSession.ConnectionInformation = new ConnectionInformation();
             var props = _rtmpSession.ConnectionInformation.GetType().GetProperties();
             foreach (var prop in props)
             {
@@ -91,7 +91,7 @@ namespace Harmonic.Networking.Rtmp
             }
             if (_rtmpSession.FindController(_rtmpSession.ConnectionInformation.App, out var controllerType))
             {
-                Controller = _rtmpSession.IOPipeline.Options.ServerLifetime.GetService(controllerType) as RtmpController;
+                Controller = _rtmpSession.IOPipeline.Options.ScopedServiceProvider.GetService(controllerType) as RtmpController;
             }
             else
             {
@@ -148,7 +148,6 @@ namespace Harmonic.Networking.Rtmp
             }
         }
 
-
         #region IDisposable Support
         private bool disposedValue = false;
 
@@ -187,7 +186,5 @@ namespace Harmonic.Networking.Rtmp
             // GC.SuppressFinalize(this);
         }
         #endregion
-
-
     }
 }

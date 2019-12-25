@@ -29,9 +29,7 @@ namespace Harmonic.Hosting
             if (webSocketOptions != null)
             {
                 _webSocketServer = new WebSocketServer($"{(options.Cert == null ? "ws" : "wss")}://{webSocketOptions.BindEndPoint.ToString()}");
-                
             }
-
         }
         public Task StartAsync(CancellationToken ct = default)
         {
@@ -54,7 +52,7 @@ namespace Harmonic.Hosting
                 {
                     reg.Dispose();
                     _webSocketServer.Dispose();
-                    _webSocketServer = new WebSocketServer(_webSocketOptions.BindEndPoint.ToString());
+                    //_webSocketServer = new WebSocketServer(_webSocketOptions.BindEndPoint.ToString());
                 });
             }
             Started = true;
@@ -90,6 +88,9 @@ namespace Harmonic.Hosting
                 catch (OperationCanceledException) { }
                 finally
                 {
+                    _listener.Close();
+                    _listener.Dispose();
+                    _webSocketServer?.Dispose();
                     ret.SetResult(1);
                 }
             });
@@ -99,11 +100,17 @@ namespace Harmonic.Hosting
         }
         private async void AcceptCallback(IAsyncResult ar, CancellationToken ct)
         {
-            Socket listener = (Socket)ar.AsyncState;
-            Socket client = listener.EndAccept(ar);
-            client.NoDelay = true;
-            // Signal the main thread to continue.
-            _allDone.Set();
+            Socket listener = null;
+            Socket client = null;
+            try
+            {
+                listener = (Socket)ar.AsyncState;
+                client = listener.EndAccept(ar);
+                client.NoDelay = true;
+                // Signal the main thread to continue.
+                _allDone.Set();
+            }
+            catch(Exception e) { }
             IOPipeLine pipe = null;
             try
             {

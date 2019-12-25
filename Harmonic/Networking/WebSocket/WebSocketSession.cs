@@ -57,7 +57,7 @@ namespace Harmonic.Networking.WebSocket
                 {
                     _webSocketConnection.Close();
                 }
-                _controller = _options._serverOptions.ServerLifetime.GetService(controllerType) as WebSocketController;
+                _controller = _options._serverOptions.ScopedServiceProvider.GetService(controllerType) as WebSocketController;
                 _controller.Query = HttpUtility.ParseQueryString(query);
                 _controller.StreamName = streamName;
                 _controller.Session = this;

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Harmonic.Controllers.Living;
-using Harmonic.Networking.Rtmp.Messages;
 
 namespace Harmonic.Service
 {
